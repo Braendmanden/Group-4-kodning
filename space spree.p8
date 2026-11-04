@@ -1,43 +1,67 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
+function randomize_grid()
+	for x = 0, 9 do
+		for y = 0, 9 do
+			grid[x][y] = flr(rnd(4))
+		end
+	end
+end
+
 function _init()
+	tilesize = 8
+	offset_x = 24
+	offset_y = 20
+	border_col = 9
+
 	grid = {}
-	for x = 0, 15 do
-	grid[x] = {}
-	for y = 0, 15 do
-
-	grid[x][y] = 0
-
+	revealed = {}
+	for x = 0, 9 do
+		grid[x] = {}
+		revealed[x] = {}
+		for y = 0, 9 do
+			grid[x][y] = 0
+			revealed[x][y] = false
+		end
 	end
-	end
-	
-	grid_oofset_x = 12
-	grid_offset_y = 10
 
-	 -- dead satellite
-	 -- alive satellite
-	 -- debris
+	randomize_grid()
 
 	poke(0x5f2d, 1)
 	cannon_x = 64
 	cannon_y = 115
-	
-	nets_left = 5
-	score = 0 
-	mouse_was_down = false
-	
-	position=100
-	timer=3000
-	true_timer=0
+	timer = 3000
+	true_timer = 0
+	point_counter = 0
+	prev_mouse_down = false
 end
 
 function _update()
-	if (timer>0) then
-	timer=timer-1
-	true_timer=flr(timer/30)
- local mouse_x = stat(32) 
- cannon_x = mid(22, mouse_x, 106)
+	mx = stat(32)
+	my = stat(33)
+
+	if (timer > 0) then
+		timer = timer - 1
+		true_timer = flr(timer / 30)
+
+		cannon_x = mid(10, mx, 117)
+
+		local hover_x = flr((mx - offset_x) / tilesize)
+		local hover_y = flr((my - offset_y) / tilesize)
+
+		local mouse_down = (stat(34) > 0)
+		local clicked = (mouse_down and not prev_mouse_down) or btnp(4)
+		prev_mouse_down = mouse_down
+
+		if clicked then
+			if hover_x >= 0 and hover_x <= 9 and hover_y >= 0 and hover_y <= 9 then
+				if not revealed[hover_x][hover_y] then
+					revealed[hover_x][hover_y] = true
+					point_counter = point_counter + grid[hover_x][hover_y]
+				end
+			end
+		end
 	end
 	
 	local mouse_down = band(stat(34), 1) !=0 -- checks left mouse button
@@ -54,49 +78,59 @@ end
 
 function _draw()
 	cls()
+	spr(1, 4, 64) --alien guy
+	spr(1, 4, 54)
+	spr(1, 4, 44)
+	spr(1, 4, 34)
+	spr(1, 116, 64)
+	spr(1, 116, 54)
+	spr(1, 116, 44)
+	spr(1, 116, 34)
 
-	-- draws sprites 
-		spr(1,4,64) -- alien guy
-		spr(1,4,54) -- one more
-		spr(1,4,44) -- one more
-		spr(1,4,34) -- one more
-		spr(1,116,64) -- one more
-		spr(1,116,54) -- one more
-		spr(1,116,44) -- one more
-		spr(1,116,34) -- one more
-	
-	print("timer: "..true_timer,1,1,10) -- timer that counts down 
-	print("space spree",40,3,12) -- title card
+	-- ui text
+	print("timer: "..true_timer, 1, 1, 10)
+	print("points: "..point_counter, 82, 1, 10)
+	print("space spree:", 40, 10, 12)
 
 	-- cannon body 
-		rectfill(cannon_x-4, cannon_y, cannon_x+4, cannon_y+4, 12)
+	rectfill(cannon_x - 8, cannon_y, cannon_x + 8, cannon_y + 8, 12)
 
 	-- cannon barrel 
-		rectfill(cannon_x-1, cannon_y-3, cannon_x+1, cannon_y, 7)
-	
-	-- displays counters 
-	print("score: " ..score, 1,123,7)
-	print("nets: " ..nets_left ,100,123,7)
-	
+	rectfill(cannon_x - 2, cannon_y - 6, cannon_x + 2, cannon_y, 7)
+
+	local hover_x = flr((mx - offset_x) / tilesize)
+	local hover_y = flr((my - offset_y) / tilesize)
+	local val_colors = {11, 9, 8, 14}
+
 	for x = 0, 9 do 
 		for y = 0, 9 do 
+			local px = offset_x + (x * tilesize)
+			local py = offset_y + (y * tilesize)
 
-			local px = grid_oofset_x + x * 10
-			local py = grid_offset_y + y * 10
+			rect(px, py, px + tilesize - 1, py + tilesize - 1, border_col)
 
-			rect(px, py, px + 9, py + 9, 5)
-					
+			if revealed[x][y] then
+				local val = grid[x][y]
+				local col = val_colors[val + 1] 
+				line(px + tilesize - 1, py, px, py + tilesize - 1, col)
+			end
+
+			if x == hover_x and y == hover_y then
+				rect(px, py, px + tilesize - 1, py + tilesize - 1, 6)
+			end
 		end
 	end
-	
+
+	-- custom cursor sprite
+	spr(2, mx, my)
 end
-
-
 
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000066066000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00700700002620000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00077000006360000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00077000006060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00700700060006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000066066000017100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000002620000017710000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000006b60000017771000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000006060000017777100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000060006000017711000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000001171000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
