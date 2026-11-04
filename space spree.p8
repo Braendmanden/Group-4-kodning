@@ -63,6 +63,17 @@ function _update()
 			end
 		end
 	end
+	
+	local mouse_down = band(stat(34), 1) !=0 -- checks left mouse button
+	
+	if mouse_down and not mouse_was_down then 
+		if nets_left > 0 then
+			nets_left = nets_left - 1
+		end
+	end
+	
+	mouse_was_down = mouse_down
+	
 end
 
 function _draw()
