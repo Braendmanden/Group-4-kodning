@@ -39,7 +39,6 @@ end
 
 function _draw()
 	cls()
-	spr(2,mx,my) --cursor
 	spr(1,4,64) --l alien guy
 	spr(1,4,54) --l one more
 	spr(1,4,44) --l one more
@@ -61,9 +60,11 @@ function _draw()
 		local px = offset_x+(x-1)*tilesize
 		local py = offset_y+(y-1)*tilesize
 		rect(px, py, px + tilesize-1, py +tilesize-1, border_col)
+  spr(2,mx,my) --cursor
 		end
 		end
 end
+
 
 
 __gfx__
