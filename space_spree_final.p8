@@ -38,9 +38,9 @@ function init_board()
   end
  end
 
- place_tiles(debris,15)
+ place_tiles(debris,20)
  place_tiles(dead,8)
- place_tiles(alive,5)
+ place_tiles(alive,10)
 
  turns=10
  score=0
@@ -379,15 +379,16 @@ function draw_intro_page4()
  print("dead satellite",25,31,9)
  print("collect them to make",8,41,7)
  print("room for new ones.",8,49,7)
- print("+30 ed each",8,57,9)
+ print("+30 eurodollars each",8,57,9)
 
  draw_alive_icon(9,69)
  print("alive satellite",25,69,12)
  print("avoid collecting them!",8,79,7)
- print("-30 ed each",8,87,12)
+ print("-30 eurodollars each",8,87,12)
 
  draw_debris_icon(9,99)
- print("space debris: +10 ed",25,99,6)
+ print("space debris:",25,95,6)
+ print("+10 eurodollars",25,103,6)
 end
 
 function draw_intro_page5()
@@ -570,11 +571,18 @@ end
 function draw_stats()
  line(8,113,120,113,5)
 
- print("shots",12,118,7)
- print(turns,43,118,10)
+ stat_pair("shots",turns,36)
+ stat_pair("ed",score,92)
+end
 
- print("ed",75,118,7)
- print(score,91,118,10)
+function stat_pair(label,val,cx)
+ local v=""..val
+ local n=#label+1
+ local w=(n+#v)*4-1
+ local x=cx-flr(w/2)
+
+ print(label,x,118,7)
+ print(v,x+n*4,118,10)
 end
 
 function draw_mouse()
@@ -596,7 +604,7 @@ function draw_gameover()
 
  cprint("mission complete",25,10)
  cprint("final funds:",40,7)
- cprint(score.." ed",49,10)
+ cprint(score.." eurodollars",49,10)
 
  cprint("space debris: "..debris_found,65,6)
  cprint("dead sats: "..dead_found,75,9)
