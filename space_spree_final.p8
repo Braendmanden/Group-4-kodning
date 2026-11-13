@@ -38,9 +38,9 @@ function init_board()
   end
  end
 
- place_tiles(debris,20)
- place_tiles(dead,8)
- place_tiles(alive,10)
+ place_tiles(debris,35)
+ place_tiles(dead,15)
+ place_tiles(alive,15)
 
  turns=10
  score=0
